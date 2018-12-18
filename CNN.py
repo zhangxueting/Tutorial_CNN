@@ -10,7 +10,7 @@ import os
 # 3-party library
 import torch
 import torch.nn as nn
-import torch.utilis.data as Data
+import torch.utils.data as Data
 import torchvision as vision
 import matplotlib.pyplot as plt
 
@@ -21,48 +21,48 @@ import matplotlib.pyplot as plt
 EPOCH = 1
 BATCH_SIZE = 50
 LR = 0.001
-DOWNLOAD_MNIST = False
+DOWNLOAD_MNIST = True
 
 # MNIST dataset
-if not (os.path.exists('./mnist/')) or not os.listdir('./mnist/'):
-	DOWNLOAD_MNIST = True
+#if not (os.path.exists('./mnist/')) or not os.listdir('./mnist/'):
+#	DOWNLOAD_MNIST = True
 
-train_data = vision.dataset.MNIST(
+train_data = vision.datasets.MNIST(
 	root = './mnist/',
 	train = True,
-	transform = vision.transform.ToTensor(),
+	transform = vision.transforms.ToTensor(),
 	download = DOWNLOAD_MNIST,
 )
 
 # plot one example
-print(train_data.train_data.size())
-print(train_data.train_labels.size())
-plt.imshow(train_data.train_data[0].numpy(), cmap='grey')
-plt.title('%i' % train_data.train_labels[0])
-plt.show()
+#print(train_data.train_data.size())
+#print(train_data.train_labels.size())
+#plt.imshow(train_data.train_data[0].numpy(), cmap='gray')
+#plt.title('%i' % train_data.train_labels[0])
+#plt.show()
 
 # Data loader for easy mini-batch return in training, the image batch shape will be (50,1,28,28)
 train_loader = Data.DataLoader(dataset = train_data, batch_size = BATCH_SIZE, shuffle = True)
 
 # Pick 2000 samples
-test_data = vision.dataset.MNIST(root='./MNIST/', train=False)
+test_data = vision.datasets.MNIST(root='./mnist/', train=False)
 test_x = torch.unsqueeze(test_data.test_data, dim=1).type(torch.FloatTensor)[:2000]/225.
 test_y = test_data.test_labels[:2000]
 
 # Network Architecture
-class CNN(nn.module):
+class CNN(nn.Module):
 	"""docstring for CNN"""
 	def __init__(self):
 		super(CNN, self).__init__()
 
 		self.conv1 = nn.Sequential(
-			nn.conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2,),
+			nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2,),
 			nn.ReLU(),
 			nn.MaxPool2d(kernel_size=2),
 		)
 
 		self.conv2 = nn.Sequential(
-			nn.conv2d(16,32,5,1,2),
+			nn.Conv2d(16,32,5,1,2),
 			nn.ReLU(),
 			nn.MaxPool2d(2),
 		)
@@ -98,8 +98,8 @@ for epoch in range(EPOCH):
 		accuracy = float((pred_y == test_y.data.numpy()).astype(int).sum())/float(test_y.size(0))
 		print('Epoch: ', epoch, '| Train_loss: %.4f' % loss.data_numpy(), '| Test_accuracy: %.2f' % accuracy)
 
-test_output, _ = cnn(test_x[;10])
-pred_y = torch.max(test_output,1)[1]data_numpy()
+test_output, _ = cnn(test_x[:10])
+pred_y = torch.max(test_output,1)[1].data.numpy()
 print(pred_y, 'prediction number: ')
 print(test_y[:10].numpy(), ' real number')
 
